@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>System Scanner (Inventory)</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --card: #121a33;
+        --muted: #9fb0ff;
+        --text: #e9edff;
+        --ok: #32d583;
+        --warn: #fdb022;
+        --bad: #f97066;
+        --line: #253056;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, Segoe UI, Tahoma;
+        background: linear-gradient(180deg, #070b16, #0b1020);
+        color: var(--text);
+      }
+      header {
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      header h1 {
+        font-size: 16px;
+        margin: 0;
+      }
+      header .pill {
+        font-size: 12px;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        padding: 6px 10px;
+        border-radius: 999px;
+      }
+      main {
+        padding: 18px 20px;
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 14px;
+      }
+      .card {
+        background: rgba(18, 26, 51, 0.88);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      }
+      .card h2 {
+        margin: 0;
+        font-size: 14px;
+        padding: 14px 14px 10px;
+        border-bottom: 1px solid var(--line);
+      }
+      .card .content {
+        padding: 12px 14px 14px;
+      }
+      button {
+        width: 100%;
+        background: #1c2a58;
+        color: var(--text);
+        border: 1px solid #2b3a74;
+        padding: 12px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .row button {
+        width: auto;
+        flex: 1;
+      }
+      .status {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--warn);
+      }
+      .dot.ok {
+        background: var(--ok);
+      }
+      .dot.bad {
+        background: var(--bad);
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--line);
+        flex-wrap: wrap;
+      }
+      .tab {
+        font-size: 12px;
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        cursor: pointer;
+        color: var(--muted);
+      }
+      .tab.active {
+        background: #1a2550;
+        color: var(--text);
+        border-color: #2b3a74;
+      }
+      pre {
+        margin: 0;
+        padding: 14px;
+        overflow: auto;
+        max-height: 70vh;
+        background: rgba(9, 12, 24, 0.7);
+        border-radius: 12px;
+        border: 1px solid rgba(37, 48, 86, 0.7);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+      .kv {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .kv .item {
+        border: 1px dashed rgba(37, 48, 86, 0.9);
+        border-radius: 12px;
+        padding: 10px;
+      }
+      .kv .k {
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .kv .v {
+        font-size: 13px;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>🔨🤖🔧 System Inventory Scanner</h1>
+      <span class="pill">Local Only • Read-Only</span>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>کنترل‌ها</h2>
+        <div class="content">
+          <button id="btnScan">شروع اسکن</button>
+          <div class="row">
+            <button id="btnExport" disabled>خروجی JSON</button>
+            <button id="btnClear">پاک کردن</button>
+          </div>
+
+          <div class="status">
+            <span class="dot" id="dot"></span>
+            <span id="statusText">آماده</span>
+          </div>
+
+          <div style="margin-top: 12px" class="kv" id="summary"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="tabs" id="tabs">
+          <div class="tab active" data-tab="pretty">نمایش خلاصه</div>
+          <div class="tab" data-tab="raw">خروجی خام</div>
+        </div>
+        <div class="content">
+          <div id="prettyView"></div>
+          <pre id="rawView" style="display: none">{}</pre>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // این UI انتظار دارد backend شما یک endpoint مثل /api/scan داشته باشد که JSON برگرداند.
+      // اگر Electron/Node دارید، می‌توانید از IPC یا یک سرور محلی استفاده کنید.
+
+      const btnScan = document.getElementById("btnScan");
+      const btnExport = document.getElementById("btnExport");
+      const btnClear = document.getElementById("btnClear");
+      const statusText = document.getElementById("statusText");
+      const dot = document.getElementById("dot");
+
+      const rawView = document.getElementById("rawView");
+      const prettyView = document.getElementById("prettyView");
+      const summary = document.getElementById("summary");
+
+      const tabs = document.getElementById("tabs");
+      let lastData = null;
+
+      function setStatus(type, text) {
+        dot.className = "dot" + (type ? " " + type : "");
+        statusText.textContent = text;
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (m) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[m])
+        );
+      }
+
+      function renderSummary(data) {
+        // چند فیلد کلیدی را نشان می‌دهیم
+        const items = [];
+        const os = data?.os?.name
+          ? `${data.os.name} (${data.os.version || ""})`
+          : "—";
+        const cpu = data?.hardware?.cpu?.model || "—";
+        const ram =
+          data?.hardware?.memory?.totalGB != null
+            ? `${data.hardware.memory.totalGB} GB`
+            : "—";
+        const host = data?.network?.hostname || "—";
+
+        items.push({ k: "Hostname", v: host });
+        items.push({ k: "OS", v: os });
+        items.push({ k: "CPU", v: cpu });
+        items.push({ k: "RAM", v: ram });
+
+        summary.innerHTML = items
+          .map(
+            (x) => `
+      <div class="item">
+        <div class="k">${escapeHtml(x.k)}</div>
+        <div class="v">${escapeHtml(x.v)}</div>
+      </div>
+    `
+          )
+          .join("");
+      }
+
+      function renderPretty(data) {
+        // نمایش ساختاریافته
+        const blocks = [];
+
+        function block(title, obj) {
+          blocks.push(`
+        <div class="card" style="margin-bottom:12px">
+          <h2 style="border-bottom:1px solid var(--line); padding:12px 12px 10px; font-size:13px">${escapeHtml(
+            title
+          )}</h2>
+          <div class="content">
+            <pre style="max-height:none">${escapeHtml(
+              JSON.stringify(obj, null, 2)
+            )}</pre>
+          </div>
+        </div>
+      `);
+        }
+
+        block("OS", data.os || {});
+        block("Hardware", data.hardware || {});
+        block("Network", data.network || {});
+        block("Local Listening Ports", data.localPorts || []); // فقط پورت‌های listen روی همین سیستم
+        block("Notes", data.notes || {});
+
+        prettyView.innerHTML = blocks.join("");
+      }
+
+      async function scan() {
+        btnScan.disabled = true;
+        btnExport.disabled = true;
+        setStatus("", "در حال اسکن…");
+
+        try {
+          // شما این endpoint را در backend پیاده می‌کنید:
+          // خروجی نمونه در پایین توضیح داده شده
+          const res = await fetch("/api/scan", { method: "GET" });
+          if (!res.ok) throw new Error("Scan failed: " + res.status);
+          const data = await res.json();
+
+          lastData = data;
+          rawView.textContent = JSON.stringify(data, null, 2);
+          renderSummary(data);
+          renderPretty(data);
+
+          btnExport.disabled = false;
+          setStatus("ok", "اسکن کامل شد ✔️");
+        } catch (err) {
+          console.error(err);
+          setStatus("bad", "خطا در اسکن ❗ (backend/مجوزها را بررسی کنید)");
+          rawView.textContent = JSON.stringify({ error: String(err) }, null, 2);
+          prettyView.innerHTML = "";
+          summary.innerHTML = "";
+          lastData = null;
+        } finally {
+          btnScan.disabled = false;
+        }
+      }
+
+      function exportJson() {
+        if (!lastData) return;
+        const blob = new Blob([JSON.stringify(lastData, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "system-scan.json";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function clearAll() {
+        lastData = null;
+        rawView.textContent = "{}";
+        prettyView.innerHTML = "";
+        summary.innerHTML = "";
+        btnExport.disabled = true;
+        setStatus("", "آماده");
+      }
+
+      tabs.addEventListener("click", (e) => {
+        const tab = e.target.closest(".tab");
+        if (!tab) return;
+        [...tabs.querySelectorAll(".tab")].forEach((t) =>
+          t.classList.remove("active")
+        );
+        tab.classList.add("active");
+        const key = tab.dataset.tab;
+        if (key === "raw") {
+          rawView.style.display = "block";
+          prettyView.style.display = "none";
+        } else {
+          rawView.style.display = "none";
+          prettyView.style.display = "block";
+        }
+      });
+
+      btnScan.addEventListener("click", scan);
+      btnExport.addEventListener("click", exportJson);
+      btnClear.addEventListener("click", clearAll);
+    </script>
+  </body>
+</html>
