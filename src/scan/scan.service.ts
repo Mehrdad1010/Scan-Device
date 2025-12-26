@@ -37,14 +37,14 @@ export class ScanService {
       si.graphics(),
       si.networkInterfaces(),
     ]);
-    console.log(timestamp);
+    // console.log(timestamp);
     // console.log(osInfo);
     // console.log(system);
     // console.log(cpu);
     // console.log(mem);
     // console.log(disks);
     // console.log(graphics);
-    // console.log(netIfaces);
+    console.log(netIfaces);
     
 
     const adapters = netIfaces

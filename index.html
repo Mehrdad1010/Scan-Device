@@ -1,366 +1,763 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>System Scanner (Inventory)</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Information Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-      :root {
-        --bg: #0b1020;
-        --card: #121a33;
-        --muted: #9fb0ff;
-        --text: #e9edff;
-        --ok: #32d583;
-        --warn: #fdb022;
-        --bad: #f97066;
-        --line: #253056;
-      }
-      body {
-        margin: 0;
-        font-family: system-ui, Segoe UI, Tahoma;
-        background: linear-gradient(180deg, #070b16, #0b1020);
-        color: var(--text);
-      }
-      header {
-        padding: 18px 20px;
-        border-bottom: 1px solid var(--line);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      header h1 {
-        font-size: 16px;
-        margin: 0;
-      }
-      header .pill {
-        font-size: 12px;
-        color: var(--muted);
-        border: 1px solid var(--line);
-        padding: 6px 10px;
-        border-radius: 999px;
-      }
-      main {
-        padding: 18px 20px;
-        max-width: 1100px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: 320px 1fr;
-        gap: 14px;
-      }
-      .card {
-        background: rgba(18, 26, 51, 0.88);
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-      }
-      .card h2 {
-        margin: 0;
-        font-size: 14px;
-        padding: 14px 14px 10px;
-        border-bottom: 1px solid var(--line);
-      }
-      .card .content {
-        padding: 12px 14px 14px;
-      }
-      button {
-        width: 100%;
-        background: #1c2a58;
-        color: var(--text);
-        border: 1px solid #2b3a74;
-        padding: 12px 12px;
-        border-radius: 12px;
-        cursor: pointer;
-        font-weight: 600;
-      }
-      button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-      .row {
-        display: flex;
-        gap: 10px;
-        margin-top: 10px;
-      }
-      .row button {
-        width: auto;
-        flex: 1;
-      }
-      .status {
-        margin-top: 10px;
-        font-size: 12px;
-        color: var(--muted);
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-      .dot {
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        background: var(--warn);
-      }
-      .dot.ok {
-        background: var(--ok);
-      }
-      .dot.bad {
-        background: var(--bad);
-      }
-      .tabs {
-        display: flex;
-        gap: 8px;
-        padding: 10px 14px;
-        border-bottom: 1px solid var(--line);
-        flex-wrap: wrap;
-      }
-      .tab {
-        font-size: 12px;
-        padding: 8px 10px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        cursor: pointer;
-        color: var(--muted);
-      }
-      .tab.active {
-        background: #1a2550;
-        color: var(--text);
-        border-color: #2b3a74;
-      }
-      pre {
-        margin: 0;
-        padding: 14px;
-        overflow: auto;
-        max-height: 70vh;
-        background: rgba(9, 12, 24, 0.7);
-        border-radius: 12px;
-        border: 1px solid rgba(37, 48, 86, 0.7);
-        font-size: 12px;
-        line-height: 1.55;
-      }
-      .kv {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 8px;
-      }
-      .kv .item {
-        border: 1px dashed rgba(37, 48, 86, 0.9);
-        border-radius: 12px;
-        padding: 10px;
-      }
-      .kv .k {
-        font-size: 11px;
-        color: var(--muted);
-        margin-bottom: 4px;
-      }
-      .kv .v {
-        font-size: 13px;
-        word-break: break-word;
-      }
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #141823;
+            --bg-tertiary: #1a1f2e;
+            --accent-cyan: #00f0ff;
+            --accent-magenta: #ff00aa;
+            --accent-yellow: #ffee00;
+            --text-primary: #e8edf4;
+            --text-secondary: #8b95a8;
+            --border-color: #2a3346;
+            --shadow-glow: rgba(0, 240, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 240, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 170, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-magenta) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px var(--shadow-glow);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .timestamp {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 240, 255, 0.15);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+        .card:nth-child(6) { animation-delay: 0.6s; }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 0 20px var(--shadow-glow);
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+
+        .info-row:hover {
+            background: rgba(0, 240, 255, 0.05);
+            padding-left: 10px;
+            padding-right: 10px;
+            margin-left: -10px;
+            margin-right: -10px;
+            border-radius: 6px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 300;
+        }
+
+        .value {
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .value.highlight {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px var(--shadow-glow);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+            border-radius: 10px;
+            transition: width 1s ease;
+            box-shadow: 0 0 10px var(--shadow-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        .disk-item, .gpu-item, .adapter-item {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--accent-cyan);
+            transition: all 0.3s ease;
+        }
+
+        .disk-item:hover, .gpu-item:hover, .adapter-item:hover {
+            background: rgba(0, 240, 255, 0.08);
+            transform: translateX(5px);
+        }
+
+        .section-wide {
+            grid-column: 1 / -1;
+        }
+
+        .ports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .port-item {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .port-item:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .port-proto {
+            color: var(--accent-magenta);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .port-state {
+            color: var(--accent-cyan);
+            font-size: 0.7rem;
+            margin-top: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+            margin-right: 8px;
+            margin-top: 5px;
+        }
+
+        .warning {
+            color: var(--accent-yellow);
+        }
+
+        .critical {
+            color: var(--accent-magenta);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--shadow-glow);
+            animation: pulse 2s infinite;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
     </style>
-  </head>
-  <body>
-    <header>
-      <h1>🔨🤖🔧 System Inventory Scanner</h1>
-      <span class="pill">Local Only • Read-Only</span>
-    </header>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>System Diagnostics</h1>
+            <p class="subtitle"><span class="status-indicator"></span>Real-Time Monitoring</p>
+            <div class="timestamp">⏱ 2025-12-26T20:22:30.647Z</div>
+        </header>
 
-    <main>
-      <section class="card">
-        <h2>کنترل‌ها</h2>
-        <div class="content">
-          <button id="btnScan">شروع اسکن</button>
-          <div class="row">
-            <button id="btnExport" disabled>خروجی JSON</button>
-            <button id="btnClear">پاک کردن</button>
-          </div>
+        <div class="grid">
+            <!-- Operating System -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">OS</div>
+                    <h2 class="card-title">Operating System</h2>
+                </div>
+                <div class="info-row">
+                    <span class="label">Name</span>
+                    <span class="value highlight">Microsoft Windows 10 Home</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Version</span>
+                    <span class="value">10.0.19045</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Build</span>
+                    <span class="value">19045</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Architecture</span>
+                    <span class="value">x64</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Kernel</span>
+                    <span class="value">10.0.19045</span>
+                </div>
+            </div>
 
-          <div class="status">
-            <span class="dot" id="dot"></span>
-            <span id="statusText">آماده</span>
-          </div>
+            <!-- Hardware System -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">HW</div>
+                    <h2 class="card-title">Hardware</h2>
+                </div>
+                <div class="info-row">
+                    <span class="label">Manufacturer</span>
+                    <span class="value highlight">Dell Inc.</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Model</span>
+                    <span class="value">Precision M6800</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Version</span>
+                    <span class="value">00</span>
+                </div>
+            </div>
 
-          <div style="margin-top: 12px" class="kv" id="summary"></div>
+            <!-- CPU -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">⚡</div>
+                    <h2 class="card-title">Processor</h2>
+                </div>
+                <div class="info-row">
+                    <span class="label">Brand</span>
+                    <span class="value highlight">Intel Core™ i7-4810MQ</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Manufacturer</span>
+                    <span class="value">Intel</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Cores (Logical)</span>
+                    <span class="value">8 cores</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Cores (Physical)</span>
+                    <span class="value">4 cores</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Speed</span>
+                    <span class="value">2.8 GHz</span>
+                </div>
+            </div>
+
+            <!-- Memory -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">💾</div>
+                    <h2 class="card-title">Memory</h2>
+                </div>
+                <div class="info-row">
+                    <span class="label">Total RAM</span>
+                    <span class="value highlight">15.9 GB</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Free RAM</span>
+                    <span class="value">8.3 GB</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Used RAM</span>
+                    <span class="value warning">7.6 GB (47.8%)</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 47.8%"></div>
+                </div>
+            </div>
+
+            <!-- Disks -->
+            <div class="card section-wide">
+                <div class="card-header">
+                    <div class="card-icon">💿</div>
+                    <h2 class="card-title">Storage Devices</h2>
+                </div>
+                
+                <div class="disk-item">
+                    <div class="info-row">
+                        <span class="label">Drive</span>
+                        <span class="value highlight">C: (NTFS)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Total Size</span>
+                        <span class="value">118.6 GB</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Used</span>
+                        <span class="value critical">107.9 GB (91.01%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 91.01%"></div>
+                    </div>
+                </div>
+
+                <div class="disk-item">
+                    <div class="info-row">
+                        <span class="label">Drive</span>
+                        <span class="value highlight">D: (NTFS)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Total Size</span>
+                        <span class="value">698.6 GB</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Used</span>
+                        <span class="value">319.8 GB (45.78%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 45.78%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GPU -->
+            <div class="card section-wide">
+                <div class="card-header">
+                    <div class="card-icon">🎮</div>
+                    <h2 class="card-title">Graphics Processing</h2>
+                </div>
+                
+                <div class="gpu-item">
+                    <div class="info-row">
+                        <span class="label">Vendor</span>
+                        <span class="value highlight">Intel Corporation</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Model</span>
+                        <span class="value">Intel(R) HD Graphics 4600</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">VRAM</span>
+                        <span class="value">1024 MB</span>
+                    </div>
+                </div>
+
+                <div class="gpu-item">
+                    <div class="info-row">
+                        <span class="label">Vendor</span>
+                        <span class="value highlight">NVIDIA</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Model</span>
+                        <span class="value">NVIDIA Quadro K3100M</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">VRAM</span>
+                        <span class="value">4096 MB</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Network -->
+            <div class="card section-wide">
+                <div class="card-header">
+                    <div class="card-icon">🌐</div>
+                    <h2 class="card-title">Network</h2>
+                </div>
+                <div class="info-row">
+                    <span class="label">Hostname</span>
+                    <span class="value highlight">DESKTOP-8HBSHF4</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Platform</span>
+                    <span class="value">win32</span>
+                </div>
+                
+                <h3 style="margin-top: 25px; margin-bottom: 15px; color: var(--accent-cyan); font-family: 'Orbitron', sans-serif; font-size: 1rem;">Network Adapters</h3>
+                
+                <div class="adapter-item">
+                    <div class="info-row">
+                        <span class="label">Name</span>
+                        <span class="value highlight">Ethernet 2</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">IPv4</span>
+                        <span class="value">192.168.56.1</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">IPv6</span>
+                        <span class="value">fe80::a972:fc0d:1030:ad17</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">MAC Address</span>
+                        <span class="value">0a:00:27:00:00:04</span>
+                    </div>
+                    <span class="badge">Speed: 1000 Mbps</span>
+                    <span class="badge">Type: wired</span>
+                </div>
+
+                <div class="adapter-item">
+                    <div class="info-row">
+                        <span class="label">Name</span>
+                        <span class="value highlight">Wi-Fi</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">IPv4</span>
+                        <span class="value">192.168.199.87</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">MAC Address</span>
+                        <span class="value">10:0b:a9:b7:fa:9c</span>
+                    </div>
+                    <span class="badge">Speed: 72 Mbps</span>
+                    <span class="badge">Type: wired</span>
+                </div>
+
+                <div class="adapter-item">
+                    <div class="info-row">
+                        <span class="label">Name</span>
+                        <span class="value highlight">vEthernet (WSL)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">IPv4</span>
+                        <span class="value">172.18.176.1</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">IPv6</span>
+                        <span class="value">fe80::b400:dca9:8670:b201</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">MAC Address</span>
+                        <span class="value">00:15:5d:e3:ad:44</span>
+                    </div>
+                    <span class="badge">Speed: 10000 Mbps</span>
+                    <span class="badge">Type: wired</span>
+                </div>
+
+                <div class="adapter-item">
+                    <div class="info-row">
+                        <span class="label">Name</span>
+                        <span class="value highlight">Ethernet</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">MAC Address</span>
+                        <span class="value">f8:ca:b8:64:64:d3</span>
+                    </div>
+                    <span class="badge warning">Speed: 0 Mbps (Disconnected)</span>
+                    <span class="badge">Type: wired</span>
+                </div>
+            </div>
+
+            <!-- Local Ports -->
+            <div class="card section-wide">
+                <div class="card-header">
+                    <div class="card-icon">🔌</div>
+                    <h2 class="card-title">Active Ports</h2>
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.85rem;">
+                    Monitoring <span style="color: var(--accent-cyan); font-weight: 600;">68 active ports</span> on the system
+                </p>
+                
+                <div class="ports-grid">
+                    <div class="port-item">
+                        <span class="port-proto">UDP</span> 0.0.0.0:53<br>
+                        <span class="port-state">BOUND · PID 3576</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">TCP</span> 0.0.0.0:135<br>
+                        <span class="port-state">LISTENING · PID 640</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">TCP</span> [::]:135<br>
+                        <span class="port-state">LISTENING · PID 640</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">TCP</span> 0.0.0.0:445<br>
+                        <span class="port-state">LISTENING · PID 4</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">TCP</span> 0.0.0.0:3000<br>
+                        <span class="port-state">LISTENING · PID 9408</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">TCP</span> [::]:3000<br>
+                        <span class="port-state">LISTENING · PID 9408</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">UDP</span> 0.0.0.0:5353<br>
+                        <span class="port-state">BOUND · PID 3192</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">TCP</span> 127.0.0.1:8828<br>
+                        <span class="port-state">LISTENING · PID 10016</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">TCP</span> 127.0.0.1:50001<br>
+                        <span class="port-state">LISTENING · PID 5992</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">UDP</span> 192.168.199.87:137<br>
+                        <span class="port-state">BOUND · PID 4</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">TCP</span> 192.168.199.87:139<br>
+                        <span class="port-state">LISTENING · PID 4</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">UDP</span> 0.0.0.0:1900<br>
+                        <span class="port-state">BOUND · PID 5264</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">TCP</span> 0.0.0.0:5040<br>
+                        <span class="port-state">LISTENING · PID 7272</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">UDP</span> 0.0.0.0:5355<br>
+                        <span class="port-state">BOUND · PID 3192</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">TCP</span> 0.0.0.0:5357<br>
+                        <span class="port-state">LISTENING · PID 4</span>
+                    </div>
+                    <div class="port-item">
+                        <span class="port-proto">TCP</span> 0.0.0.0:49664<br>
+                        <span class="port-state">LISTENING · PID 688</span>
+                    </div>
+                </div>
+                
+                <p style="color: var(--text-secondary); margin-top: 20px; font-size: 0.75rem; text-align: center;">
+                    + 52 additional ports · Scope: local-only
+                </p>
+            </div>
         </div>
-      </section>
-
-      <section class="card">
-        <div class="tabs" id="tabs">
-          <div class="tab active" data-tab="pretty">نمایش خلاصه</div>
-          <div class="tab" data-tab="raw">خروجی خام</div>
-        </div>
-        <div class="content">
-          <div id="prettyView"></div>
-          <pre id="rawView" style="display: none">{}</pre>
-        </div>
-      </section>
-    </main>
+    </div>
 
     <script>
-      // این UI انتظار دارد backend شما یک endpoint مثل /api/scan داشته باشد که JSON برگرداند.
-      // اگر Electron/Node دارید، می‌توانید از IPC یا یک سرور محلی استفاده کنید.
-
-      const btnScan = document.getElementById("btnScan");
-      const btnExport = document.getElementById("btnExport");
-      const btnClear = document.getElementById("btnClear");
-      const statusText = document.getElementById("statusText");
-      const dot = document.getElementById("dot");
-
-      const rawView = document.getElementById("rawView");
-      const prettyView = document.getElementById("prettyView");
-      const summary = document.getElementById("summary");
-
-      const tabs = document.getElementById("tabs");
-      let lastData = null;
-
-      function setStatus(type, text) {
-        dot.className = "dot" + (type ? " " + type : "");
-        statusText.textContent = text;
-      }
-
-      function escapeHtml(s) {
-        return String(s).replace(
-          /[&<>"']/g,
-          (m) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#39;",
-            }[m])
-        );
-      }
-
-      function renderSummary(data) {
-        // چند فیلد کلیدی را نشان می‌دهیم
-        const items = [];
-        const os = data?.os?.name
-          ? `${data.os.name} (${data.os.version || ""})`
-          : "—";
-        const cpu = data?.hardware?.cpu?.model || "—";
-        const ram =
-          data?.hardware?.memory?.totalGB != null
-            ? `${data.hardware.memory.totalGB} GB`
-            : "—";
-        const host = data?.network?.hostname || "—";
-
-        items.push({ k: "Hostname", v: host });
-        items.push({ k: "OS", v: os });
-        items.push({ k: "CPU", v: cpu });
-        items.push({ k: "RAM", v: ram });
-
-        summary.innerHTML = items
-          .map(
-            (x) => `
-      <div class="item">
-        <div class="k">${escapeHtml(x.k)}</div>
-        <div class="v">${escapeHtml(x.v)}</div>
-      </div>
-    `
-          )
-          .join("");
-      }
-
-      function renderPretty(data) {
-        // نمایش ساختاریافته
-        const blocks = [];
-
-        function block(title, obj) {
-          blocks.push(`
-        <div class="card" style="margin-bottom:12px">
-          <h2 style="border-bottom:1px solid var(--line); padding:12px 12px 10px; font-size:13px">${escapeHtml(
-            title
-          )}</h2>
-          <div class="content">
-            <pre style="max-height:none">${escapeHtml(
-              JSON.stringify(obj, null, 2)
-            )}</pre>
-          </div>
-        </div>
-      `);
-        }
-
-        block("OS", data.os || {});
-        block("Hardware", data.hardware || {});
-        block("Network", data.network || {});
-        block("Local Listening Ports", data.localPorts || []); // فقط پورت‌های listen روی همین سیستم
-        block("Notes", data.notes || {});
-
-        prettyView.innerHTML = blocks.join("");
-      }
-
-      async function scan() {
-        btnScan.disabled = true;
-        btnExport.disabled = true;
-        setStatus("", "در حال اسکن…");
-
-        try {
-          // شما این endpoint را در backend پیاده می‌کنید:
-          // خروجی نمونه در پایین توضیح داده شده
-          const res = await fetch("/api/scan", { method: "GET" });
-          if (!res.ok) throw new Error("Scan failed: " + res.status);
-          const data = await res.json();
-
-          lastData = data;
-          rawView.textContent = JSON.stringify(data, null, 2);
-          renderSummary(data);
-          renderPretty(data);
-
-          btnExport.disabled = false;
-          setStatus("ok", "اسکن کامل شد ✔️");
-        } catch (err) {
-          console.error(err);
-          setStatus("bad", "خطا در اسکن ❗ (backend/مجوزها را بررسی کنید)");
-          rawView.textContent = JSON.stringify({ error: String(err) }, null, 2);
-          prettyView.innerHTML = "";
-          summary.innerHTML = "";
-          lastData = null;
-        } finally {
-          btnScan.disabled = false;
-        }
-      }
-
-      function exportJson() {
-        if (!lastData) return;
-        const blob = new Blob([JSON.stringify(lastData, null, 2)], {
-          type: "application/json",
+        // Animate progress bars on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
         });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "system-scan.json";
-        a.click();
-        URL.revokeObjectURL(url);
-      }
 
-      function clearAll() {
-        lastData = null;
-        rawView.textContent = "{}";
-        prettyView.innerHTML = "";
-        summary.innerHTML = "";
-        btnExport.disabled = true;
-        setStatus("", "آماده");
-      }
-
-      tabs.addEventListener("click", (e) => {
-        const tab = e.target.closest(".tab");
-        if (!tab) return;
-        [...tabs.querySelectorAll(".tab")].forEach((t) =>
-          t.classList.remove("active")
-        );
-        tab.classList.add("active");
-        const key = tab.dataset.tab;
-        if (key === "raw") {
-          rawView.style.display = "block";
-          prettyView.style.display = "none";
-        } else {
-          rawView.style.display = "none";
-          prettyView.style.display = "block";
-        }
-      });
-
-      btnScan.addEventListener("click", scan);
-      btnExport.addEventListener("click", exportJson);
-      btnClear.addEventListener("click", clearAll);
+        // Add interactive hover effects
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 10px 40px rgba(0, 240, 255, 0.2)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.boxShadow = '';
+            });
+        });
     </script>
-  </body>
+</body>
 </html>
