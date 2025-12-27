@@ -44,7 +44,7 @@ export class ScanService {
     // console.log(mem);
     // console.log(disks);
     // console.log(graphics);
-    console.log(netIfaces);
+    // console.log(netIfaces);
     
 
     const adapters = netIfaces
