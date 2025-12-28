@@ -1,11 +1,10 @@
-import React from 'react'
+import React from "react";
 
-export default function 
-({label, value, valueclass}) {
+export default function InfoRow({ label, value, valueclass }) {
   return (
-    <div className='info-row'>
-        <span className="labael">{label}</span>
-        <span className={`value ${valueclass}`}>{value}</span>
+    <div className="info-row">
+      <span className="labael">{label}</span>
+      <span className={`value ${valueclass}`}>{value}</span>
     </div>
-  )
+  );
 }

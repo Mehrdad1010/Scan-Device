@@ -3,57 +3,62 @@ import { client } from "../api/client";
 
 const SystemContext = createContext(undefined);
 
-export function SystemProvider({ childe }) {
-  const [os, setOs] = useState({
-    name: undefined,
-    version: undefined,
-    build: undefined,
-    arch: undefined,
-    kernel: undefined,
-  });
-  const [system, setSystem] = useState({
-    manufacturer: undefined,
-    model: undefined,
-    version: undefined,
-  });
-  const [cpu, setCpu] = useState({
-    manufacturer: undefined,
-    brand: undefined,
-    model: undefined,
-    cores: undefined,
-    physicalCores: undefined,
-    speedGHz: undefined,
-  });
-  const [memory, setMemory] = useState({
-    totalGB: undefined,
-    freeGB: undefined,
-  });
-  const [disks, setDisks] = useState([]);
-  const [gpu, setGpu] = useState([]);
-  const [network, setNetwork] = useState({
-    hostname: undefined,
-    platform: undefined,
-    adapters: [],
-  });
-  const [localPorts, setLocalPorts] = useState([]);
-  const [notes, setNotes] = useState({
-    scope: undefined,
-    timestamp: undefined,
+export function SystemProvider({ children }) {
+  const [data, setData] = useState({
+    os: {
+      arch: "",
+      build: "",
+      kernel: "",
+      name: "",
+      version: ""
+    },
+    cpu: {
+          manufacturer: "",
+          brand: "",
+          model: "", 
+          cores: "",
+          physicalCores: "",
+          speedGHz: "",
+    },
+    disks: {
+          fs: "",
+          type: "",
+          mount: "",
+          sizeGB: "",
+          usedGB:"",
+          usePercent: "",
+    },
+    memory: {
+          totalGB: "",
+          freeGB: "",
+    },
+    system: {
+          manufacturer: "",
+          model: "",
+          version: "",
+    },
+    gpu: {
+          vendor: "",
+          model: "",
+          vramMB: "",
+    },
+    localPorts:[],
+    network: {
+      adapters: [],
+      hostname: "",
+      platform: "",
+    },
+    notes: {
+      scope: "",
+      timestamp: ""
+    }
   });
 
   useLayoutEffect(() => {
     const fetchSystemInfo = async () => {
       try {
         const res = await client.get("/api/scan");
-        setOs(res.data.os);
-        setSystem(res.data.hardware.system);
-        setCpu(res.data.hardware.cpu);
-        setMemory(res.data.hardware.memory);
-        setDisks(res.data.hardware.disks);
-        setGpu(res.data.hardware.gpu);
-        setNetwork(res.data.network);
-        setLocalPorts(res.data.localPorts);
-        setNotes(res.data.notes);
+        setData(res.data);
       } catch (error) {
         console.error("Failed to load system Info:", error);
       }
@@ -62,21 +67,7 @@ export function SystemProvider({ childe }) {
   }, []);
 
   return (
-    <SystemContext.Provider
-      value={{
-        os,
-        system,
-        cpu,
-        memory,
-        disks,
-        localPorts,
-        gpu,
-        network,
-        notes,
-      }}
-    >
-      {childe}
-    </SystemContext.Provider>
+    <SystemContext.Provider value={{ data }}>{children}</SystemContext.Provider>
   );
 }
 
