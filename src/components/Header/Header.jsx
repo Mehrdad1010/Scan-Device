@@ -4,7 +4,7 @@ import { useSystemInfo } from "../../context/SystemProvider";
 
 export default function Header() {
   const { data } = useSystemInfo();
-  Object.keys(data).forEach((key) => {});
+  console.log(data);
   return (
     <header>
       <h1>System Diagnostics</h1>

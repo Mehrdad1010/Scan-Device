@@ -9,6 +9,7 @@
   --text-secondary: #8b95a8;
   --border-color: #2a3346;
   --shadow-glow: rgba(0, 240, 255, 0.3);
+  --accent-green: #00ff99;
 }
 
 * {
@@ -324,6 +325,14 @@ h1 {
 
 .critical {
   color: var(--accent-magenta);
+}
+
+.okey {
+  color: var(--accent-cyan);
+}
+
+.good {
+  color: var(--accent-green);
 }
 
 @keyframes fadeInUp {

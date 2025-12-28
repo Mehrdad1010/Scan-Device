@@ -1,4 +1,5 @@
 import "./App.css";
+import Grid from "./components/Grid/Grid";
 import Header from "./components/Header/Header";
 import { SystemProvider } from "./context/SystemProvider";
 
@@ -8,8 +9,10 @@ function App() {
       <>
         <Header />
 
-        <div className="grid">
-          {/* <!-- Operating System --> */}
+        < Grid />
+
+        {/* <div className="grid">
+
           <div className="card">
             <div className="card-header">
               <div className="card-icon">OS</div>
@@ -37,7 +40,6 @@ function App() {
             </div>
           </div>
 
-          {/* <!-- Hardware System --> */}
           <div className="card">
             <div className="card-header">
               <div className="card-icon">HW</div>
@@ -57,7 +59,6 @@ function App() {
             </div>
           </div>
 
-          {/* <!-- CPU --> */}
           <div className="card">
             <div className="card-header">
               <div className="card-icon">⚡</div>
@@ -85,7 +86,6 @@ function App() {
             </div>
           </div>
 
-          {/* <!-- Memory --> */}
           <div className="card">
             <div className="card-header">
               <div className="card-icon">💾</div>
@@ -108,7 +108,6 @@ function App() {
             </div>
           </div>
 
-          {/* <!-- Disks --> */}
           <div className="card section-wide">
             <div className="card-header">
               <div className="card-icon">💿</div>
@@ -158,7 +157,6 @@ function App() {
             </div>
           </div>
 
-          {/* <!-- GPU --> */}
           <div className="card section-wide">
             <div className="card-header">
               <div className="card-icon">🎮</div>
@@ -196,7 +194,6 @@ function App() {
             </div>
           </div>
 
-          {/* <!-- Network --> */}
           <div className="card section-wide">
             <div className="card-header">
               <div className="card-icon">🌐</div>
@@ -298,7 +295,6 @@ function App() {
             </div>
           </div>
 
-          {/* <!-- Local Ports --> */}
           <div className="card section-wide">
             <div className="card-header">
               <div className="card-icon">🔌</div>
@@ -412,7 +408,7 @@ function App() {
               + 52 additional ports · Scope: local-only
             </p>
           </div>
-        </div>
+        </div> */}
       </>
     </SystemProvider>
   );

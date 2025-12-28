@@ -6,41 +6,40 @@ const SystemContext = createContext(undefined);
 export function SystemProvider({ children }) {
   const [data, setData] = useState({
     os: {
-      arch: "",
-      build: "",
-      kernel: "",
-      name: "",
-      version: ""
+      Architecture: "",
+      Build: "",
+      Kernel: "",
+      Name: "",
+      Version: ""
     },
     cpu: {
-          manufacturer: "",
-          brand: "",
-          model: "", 
-          cores: "",
-          physicalCores: "",
-          speedGHz: "",
+          Manufacturer: "",
+          Brand: "", 
+          Cores_Logical: "",
+          Cores_Physical: "",
+          Speed: "",
     },
-    disks: {
+    disks:[ {
           fs: "",
           type: "",
           mount: "",
-          sizeGB: "",
-          usedGB:"",
+          Total_Size: "",
+          Used:"",
           usePercent: "",
-    },
+    }],
     memory: {
-          totalGB: "",
-          freeGB: "",
+          Total_RAM: "",
+          Free_RAM: "",
     },
     system: {
-          manufacturer: "",
-          model: "",
-          version: "",
+          Manufacturer: "",
+          Model: "",
+          Version: "",
     },
     gpu: {
-          vendor: "",
-          model: "",
-          vramMB: "",
+          Vendor: "",
+          Model: "",
+          VRAM: "",
     },
     localPorts:[],
     network: {
