@@ -55,42 +55,41 @@ export class ScanService {
 
     return {
       os: {
-        name: osInfo.distro || osInfo.platform,
-        version: osInfo.release,
-        build: osInfo.build,
-        arch: osInfo.arch,
-        kernel: osInfo.kernel,
+        Name: osInfo.distro || osInfo.platform,
+        Version: osInfo.release,
+        Build: osInfo.build,
+        Architecture: osInfo.arch,
+        Kernel: osInfo.kernel,
       },
 
       system: {
-        manufacturer: system.manufacturer,
-        model: system.model,
-        version: system.version,
+        Manufacturer: system.manufacturer,
+        Model: system.model,
+        Version: system.version,
       },
       cpu: {
-        manufacturer: cpu.manufacturer,
-        brand: cpu.brand,
-        model: cpu.brand, // keep it simple
-        cores: cpu.cores,
-        physicalCores: cpu.physicalCores,
-        speedGHz: Number(cpu.speed),
+        Manufacturer: cpu.manufacturer,
+        Brand: cpu.brand,
+        Cores_Logical: cpu.cores,
+        Cores_Physical: cpu.physicalCores,
+        Speed: Number(cpu.speed),
       },
       memory: {
-        totalGB: Math.round((mem.total / 1024 / 1024 / 1024) * 10) / 10,
-        freeGB: Math.round((mem.free / 1024 / 1024 / 1024) * 10) / 10,
+        Total_RAM: Math.round((mem.total / 1024 / 1024 / 1024) * 10) / 10,
+        Free_RAM: Math.round((mem.free / 1024 / 1024 / 1024) * 10) / 10,
       },
       disks: disks.map((d) => ({
         fs: d.fs,
         type: d.type,
         mount: d.mount,
-        sizeGB: Math.round((d.size / 1024 / 1024 / 1024) * 10) / 10,
-        usedGB: Math.round((d.used / 1024 / 1024 / 1024) * 10) / 10,
+        Total_Size: Math.round((d.size / 1024 / 1024 / 1024) * 10) / 10,
+        Used: Math.round((d.used / 1024 / 1024 / 1024) * 10) / 10,
         usePercent: d.use,
       })),
       gpu: (graphics.controllers || []).map((g) => ({
-        vendor: g.vendor,
-        model: g.model,
-        vramMB: g.vram,
+        Vendor: g.vendor,
+        Model: g.model,
+        VRAM: g.vram,
       })),
 
       network: {
