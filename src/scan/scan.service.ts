@@ -12,7 +12,7 @@ type LocalPort = {
   address?: string;
   pid?: number;
   process?: string;
-  state?: string; 
+  state?: string;
 };
 
 @Injectable()
@@ -20,23 +20,16 @@ export class ScanService {
   async scanLocal() {
     const timestamp = new Date().toISOString();
 
-    const [
-      osInfo,
-      system,
-      cpu,
-      mem,
-      disks,
-      graphics,
-      netIfaces,
-    ] = await Promise.all([
-      si.osInfo(),
-      si.system(),
-      si.cpu(),
-      si.mem(),
-      si.fsSize(),
-      si.graphics(),
-      si.networkInterfaces(),
-    ]);
+    const [osInfo, system, cpu, mem, disks, graphics, netIfaces] =
+      await Promise.all([
+        si.osInfo(),
+        si.system(),
+        si.cpu(),
+        si.mem(),
+        si.fsSize(),
+        si.graphics(),
+        si.networkInterfaces(),
+      ]);
     // console.log(timestamp);
     // console.log(osInfo);
     // console.log(system);
@@ -45,7 +38,6 @@ export class ScanService {
     // console.log(disks);
     // console.log(graphics);
     // console.log(netIfaces);
-    
 
     const adapters = netIfaces
       .filter((n) => !n.internal)
@@ -69,38 +61,38 @@ export class ScanService {
         arch: osInfo.arch,
         kernel: osInfo.kernel,
       },
-      hardware: {
-        system: {
-          manufacturer: system.manufacturer,
-          model: system.model,
-          version: system.version,
-        },
-        cpu: {
-          manufacturer: cpu.manufacturer,
-          brand: cpu.brand,
-          model: cpu.brand, // keep it simple
-          cores: cpu.cores,
-          physicalCores: cpu.physicalCores,
-          speedGHz: Number(cpu.speed),
-        },
-        memory: {
-          totalGB: Math.round((mem.total / 1024 / 1024 / 1024) * 10) / 10,
-          freeGB: Math.round((mem.free / 1024 / 1024 / 1024) * 10) / 10,
-        },
-        disks: disks.map((d) => ({
-          fs: d.fs,
-          type: d.type,
-          mount: d.mount,
-          sizeGB: Math.round((d.size / 1024 / 1024 / 1024) * 10) / 10,
-          usedGB: Math.round((d.used / 1024 / 1024 / 1024) * 10) / 10,
-          usePercent: d.use,
-        })),
-        gpu: (graphics.controllers || []).map((g) => ({
-          vendor: g.vendor,
-          model: g.model,
-          vramMB: g.vram,
-        })),
+
+      system: {
+        manufacturer: system.manufacturer,
+        model: system.model,
+        version: system.version,
       },
+      cpu: {
+        manufacturer: cpu.manufacturer,
+        brand: cpu.brand,
+        model: cpu.brand, // keep it simple
+        cores: cpu.cores,
+        physicalCores: cpu.physicalCores,
+        speedGHz: Number(cpu.speed),
+      },
+      memory: {
+        totalGB: Math.round((mem.total / 1024 / 1024 / 1024) * 10) / 10,
+        freeGB: Math.round((mem.free / 1024 / 1024 / 1024) * 10) / 10,
+      },
+      disks: disks.map((d) => ({
+        fs: d.fs,
+        type: d.type,
+        mount: d.mount,
+        sizeGB: Math.round((d.size / 1024 / 1024 / 1024) * 10) / 10,
+        usedGB: Math.round((d.used / 1024 / 1024 / 1024) * 10) / 10,
+        usePercent: d.use,
+      })),
+      gpu: (graphics.controllers || []).map((g) => ({
+        vendor: g.vendor,
+        model: g.model,
+        vramMB: g.vram,
+      })),
+
       network: {
         hostname: os.hostname(),
         platform: os.platform(),
@@ -123,7 +115,9 @@ export class ScanService {
       }
       if (platform === 'linux') {
         // Prefer ss if available
-        const ports = await this.getPortsLinuxSs().catch(async () => this.getPortsUnixLsof());
+        const ports = await this.getPortsLinuxSs().catch(async () =>
+          this.getPortsUnixLsof(),
+        );
         return ports;
       }
       // darwin (macOS) and others
@@ -136,7 +130,10 @@ export class ScanService {
 
   // ---- Windows: netstat -ano ----
   private async getPortsWindows(): Promise<LocalPort[]> {
-    const { stdout } = await execFileAsync('netstat', ['-ano'], { windowsHide: true, timeout: 8000 });
+    const { stdout } = await execFileAsync('netstat', ['-ano'], {
+      windowsHide: true,
+      timeout: 8000,
+    });
     const lines = stdout.split(/\r?\n/);
 
     const results: LocalPort[] = [];
@@ -178,7 +175,9 @@ export class ScanService {
   // ---- Linux: ss -lntuap ----
   private async getPortsLinuxSs(): Promise<LocalPort[]> {
     // -l listening, -n numeric, -t tcp, -u udp, -p process, -a all
-    const { stdout } = await execFileAsync('ss', ['-lntuap'], { timeout: 8000 });
+    const { stdout } = await execFileAsync('ss', ['-lntuap'], {
+      timeout: 8000,
+    });
     const lines = stdout.split(/\r?\n/);
 
     // ss output differs; we parse best-effort
@@ -198,7 +197,14 @@ export class ScanService {
       const proto: 'tcp' | 'udp' = isUdp ? 'udp' : 'tcp';
 
       // Find token that looks like "IP:PORT" for local address
-      const localToken = cols.find((c) => c.includes(':') && (c.includes('.') || c.includes('[') || c.includes('*') || c.includes('::')));
+      const localToken = cols.find(
+        (c) =>
+          c.includes(':') &&
+          (c.includes('.') ||
+            c.includes('[') ||
+            c.includes('*') ||
+            c.includes('::')),
+      );
       if (!localToken) continue;
 
       const { address, port } = this.splitHostPort(localToken);
@@ -234,8 +240,12 @@ export class ScanService {
   private async getPortsUnixLsof(): Promise<LocalPort[]> {
     // -n no DNS, -P numeric ports, -i network, -sTCP:LISTEN only TCP listen
     // We'll also try UDP with -iUDP if needed.
-    const tcp = await execFileAsync('lsof', ['-nP', '-iTCP', '-sTCP:LISTEN'], { timeout: 8000 }).catch(() => ({ stdout: '' as any }));
-    const udp = await execFileAsync('lsof', ['-nP', '-iUDP'], { timeout: 8000 }).catch(() => ({ stdout: '' as any }));
+    const tcp = await execFileAsync('lsof', ['-nP', '-iTCP', '-sTCP:LISTEN'], {
+      timeout: 8000,
+    }).catch(() => ({ stdout: '' as any }));
+    const udp = await execFileAsync('lsof', ['-nP', '-iUDP'], {
+      timeout: 8000,
+    }).catch(() => ({ stdout: '' as any }));
 
     const results: LocalPort[] = [];
     results.push(...this.parseLsof(tcp.stdout, 'tcp', true));
@@ -244,7 +254,11 @@ export class ScanService {
     return this.uniquePorts(results);
   }
 
-  private parseLsof(stdout: string, proto: 'tcp' | 'udp', onlyListen: boolean): LocalPort[] {
+  private parseLsof(
+    stdout: string,
+    proto: 'tcp' | 'udp',
+    onlyListen: boolean,
+  ): LocalPort[] {
     const lines = stdout.split(/\r?\n/).filter(Boolean);
     // Header:
     // COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
@@ -320,7 +334,7 @@ export class ScanService {
       out.push(p);
     }
     // sort nicely
-    out.sort((a, b) => (a.port - b.port) || a.proto.localeCompare(b.proto));
+    out.sort((a, b) => a.port - b.port || a.proto.localeCompare(b.proto));
     return out;
   }
 }
