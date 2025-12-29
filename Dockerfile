@@ -20,4 +20,4 @@ COPY --from=build /app ./
 
 EXPOSE 5000
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:prod"]

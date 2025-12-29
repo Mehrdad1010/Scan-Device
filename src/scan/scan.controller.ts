@@ -1,13 +1,24 @@
-import { Controller, Get, Req } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ScanService } from './scan.service';
-import express from 'express';
+import { ScanStreamService } from './scan-stream.service';
 
-@Controller('api')
+@Controller('scan')
 export class ScanController {
-  constructor(private readonly scanService: ScanService) {}
+  constructor(
+    private readonly scanService: ScanService,
+    private readonly scanStreamService: ScanStreamService,
+  ) {}
 
-  @Get('scan')
-  async scan(@Req() request: express.Request) {
-    return await this.scanService.scanLocal();
+  @Get()
+  async scanOnce(@Query('liveIntervalMs') liveIntervalMs?: string) {
+    const numericInterval = liveIntervalMs ? Number(liveIntervalMs) : undefined;
+
+    const snapshot = await this.scanService.scanLocal();
+
+    setImmediate(() => {
+      this.scanStreamService.start(numericInterval ?? 1000);
+    });
+
+    return snapshot;
   }
 }

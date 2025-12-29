@@ -17,8 +17,14 @@ type LocalPort = {
 
 @Injectable()
 export class ScanService {
+
+
   async scanLocal() {
-    const timestamp = new Date().toISOString();
+
+    const timestamp = new Date().toLocaleString('en-CA', {
+      timeZone: 'Asia/Tehran',
+      hour12: false,
+    });;
 
     const [osInfo, system, cpu, mem, disks, graphics, netIfaces] =
       await Promise.all([
@@ -53,7 +59,7 @@ export class ScanService {
     // ---- Local listening ports (on THIS machine only) ----
     const localPorts = await this.getLocalListeningPortsSafe();
 
-    return {
+    const data = {
       os: {
         Name: osInfo.distro || osInfo.platform,
         Version: osInfo.release,
@@ -103,6 +109,9 @@ export class ScanService {
         timestamp,
       },
     };
+
+
+    return data;
   }
 
   private async getLocalListeningPortsSafe(): Promise<LocalPort[]> {
