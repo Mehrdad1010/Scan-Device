@@ -10,38 +10,40 @@ export function SystemProvider({ children }) {
       Build: "",
       Kernel: "",
       Name: "",
-      Version: ""
+      Version: "",
     },
     cpu: {
-          Manufacturer: "",
-          Brand: "", 
-          Cores_Logical: "",
-          Cores_Physical: "",
-          Speed: "",
+      Manufacturer: "",
+      Brand: "",
+      Cores_Logical: "",
+      Cores_Physical: "",
+      Speed: "",
     },
-    disks:[ {
-          fs: "",
-          type: "",
-          mount: "",
-          Total_Size: "",
-          Used:"",
-          usePercent: "",
-    }],
+    disks: [
+      {
+        fs: "",
+        type: "",
+        mount: "",
+        Total_Size: "",
+        Used: "",
+        usePercent: "",
+      },
+    ],
     memory: {
-          Total_RAM: "",
-          Free_RAM: "",
+      Total_RAM: "",
+      Free_RAM: "",
     },
     system: {
-          Manufacturer: "",
-          Model: "",
-          Version: "",
+      Manufacturer: "",
+      Model: "",
+      Version: "",
     },
     gpu: {
-          Vendor: "",
-          Model: "",
-          VRAM: "",
+      Vendor: "",
+      Model: "",
+      VRAM: "",
     },
-    localPorts:[],
+    localPorts: [],
     network: {
       adapters: [],
       hostname: "",
@@ -49,31 +51,39 @@ export function SystemProvider({ children }) {
     },
     notes: {
       scope: "",
-      timestamp: ""
-    }
+      timestamp: "",
+    },
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useLayoutEffect(() => {
     const fetchSystemInfo = async () => {
       try {
         const res = await client.get("/api/scan");
         setData(res.data);
-      } catch (error) {
-        console.error("Failed to load system Info:", error);
+      } catch (err) {
+        console.error("Failed to load system info:", err);
+        setError(err);
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchSystemInfo();
   }, []);
 
   return (
-    <SystemContext.Provider value={{ data }}>{children}</SystemContext.Provider>
+    <SystemContext.Provider value={{ data, loading, error }}>
+      {children}
+    </SystemContext.Provider>
   );
 }
 
 export function useSystemInfo() {
   const ctx = useContext(SystemContext);
   if (!ctx) {
-    throw new Error("useUser must be used inside UserProvider");
+    throw new Error("useSystemInfo must be used inside SystemProvider");
   }
   return ctx;
 }
