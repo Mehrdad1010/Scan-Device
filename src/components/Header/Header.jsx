@@ -4,7 +4,6 @@ import { useSystemInfo } from "../../context/SystemProvider";
 
 export default function Header() {
   const { data } = useSystemInfo();
-  console.log(data);
 
   return (
     <header>

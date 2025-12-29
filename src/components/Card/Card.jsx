@@ -5,6 +5,7 @@ import ProgressBar from "../ProgressBar/ProgressBar";
 import DiskItem from "../DiskItem/DiskItem";
 import GpuItem from "../GpuItem/GpuItem";
 import Adapteritem from "../AdapterItem/AdapterItem";
+import PortsGrid from "../PortsGrid/PortsGrid";
 
 export default function Card({ data, title }) {
   function progress_calculator(total, free, inuse) {
@@ -25,13 +26,11 @@ export default function Card({ data, title }) {
     localPorts: { icon: "🔌", title: "Active Ports" },
   };
 
+  const excludedTitles = ["disks", "gpu", "network", "localPorts"];
+
   var section = "";
-  if (
-    title === "disks" ||
-    title === "gpu" ||
-    title === "network" ||
-    title === "localPorts"
-  ) {
+
+  if (excludedTitles.includes(title)) {
     section = "section-wide";
   }
 
@@ -52,11 +51,34 @@ export default function Card({ data, title }) {
     data.Total_RAM = `${data.Total_RAM} GB`;
     data.Free_RAM = `${data.Free_RAM} GB`;
   }
-  const excludedTitles = ["disks", "gpu", "network"];
+  
   
   return (
     <div className={`card ${section}`}>
+      {/* Header of the cards */}
       <CardHeader icon={headers[title].icon} title={headers[title].title} />
+
+      {/* this is for create 4 ferst cards */}
+      {!excludedTitles.includes(title) && (
+        <>
+          {Object.keys(data).map((key) => (
+            <InfoRow key={key} label={key} value={data[key]} />
+          ))}
+          {title === "memory" && (
+            <ProgressBar
+              progress={`${(
+                progress_calculator(
+                  parseFloat(data.Total_RAM),
+                  parseFloat(data.Free_RAM),
+                  null
+                ) * 100
+              ).toFixed(2)}%`}
+            />
+          )}
+        </>
+      )}
+
+
       {title === "disks" && (
         <>
           {Array.isArray(data) ? (
@@ -66,7 +88,9 @@ export default function Card({ data, title }) {
           )}
         </>
       )}
-      {title === "gpu" && (
+
+      
+       {title === "gpu" && (
         <>
           {Array.isArray(data) ? (
             data.map((gpu, index) => <GpuItem key={index} data={gpu} />)
@@ -75,6 +99,8 @@ export default function Card({ data, title }) {
           )}
         </>
       )}
+
+
 
       {title === "network" && (
         <>
@@ -100,25 +126,13 @@ export default function Card({ data, title }) {
           )}
         </>
       )}
+      
 
-      {!excludedTitles.includes(title) && (
-        <>
-          {Object.keys(data).map((key) => (
-            <InfoRow key={key} label={key} value={data[key]} />
-          ))}
-          {title === "memory" && (
-            <ProgressBar
-              progress={`${(
-                progress_calculator(
-                  parseFloat(data.Total_RAM),
-                  parseFloat(data.Free_RAM),
-                  null
-                ) * 100
-              ).toFixed(2)}%`}
-            />
-          )}
-        </>
+      {title === "localPorts" && (
+        <PortsGrid data={data} />
       )}
+
+      
     </div>
   );
 }

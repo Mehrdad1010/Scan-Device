@@ -1,11 +1,11 @@
 import React from 'react';
 
-export default function PortItem() {
+export default function PortItem({ data }) {
   return (
     <div className="port-item">
-      <span className="port-proto">UDP</span> 0.0.0.0:53
+      <span className="port-proto">{data.proto}</span> {data.address}:{data.port}
       <br />
-      <span className="port-state">BOUND · PID 3576</span>
+      <span className="port-state">{data.state} · PID {data.pid}</span>
     </div>
   );
 }
